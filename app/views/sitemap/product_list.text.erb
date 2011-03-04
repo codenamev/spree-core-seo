@@ -1,0 +1,7 @@
+List of all products in our online store <%= Spree::Config[:site_name] %>.
+One product may belong to different categories.
+
+<% @products_and_taxons.sort.each do |k,v| -%>
+<% v['depth'].to_i.times do -%>  <% end -%>
+<%= @public_dir %><%= v['name'] %>
+<% end -%>

@@ -1,0 +1,14 @@
+<%= render :partial => 'admin/shared/configuration_menu' %>
+
+<h1><%= t("keywords_footer") %></h1>
+
+<table>
+  <tr>
+    <th scope="row"><%= t("keywords_in_footer") %>:</th>
+    <td><%=  Spree::Config[:keywords_footer] %></td>
+  </tr>
+</table>
+
+<p>
+  <%= link_to_with_icon('edit', t("edit"), edit_admin_keywords_footer_path) %>
+</p>

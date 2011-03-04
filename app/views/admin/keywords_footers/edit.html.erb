@@ -1,0 +1,14 @@
+<%= render :partial => 'admin/shared/configuration_menu' %>
+
+<h1><%= t("keywords_footer") %></h1>
+
+<% form_tag(admin_keywords_footer_path, :method => :put) do -%>
+  <p>
+    <label><%= t('keywords_for_footer') %>:</label><br>
+    <%= text_area_tag('preferences[keywords_footer]', Spree::Config[:keywords_footer], :rows => 7, :cols => 50) %>
+  </p>
+  <p class="form-buttons">
+    <%= button t('update') %>
+    <%= t("or") %> <%= link_to t("cancel"), admin_keywords_footer_url %>
+  </p>
+<% end -%>

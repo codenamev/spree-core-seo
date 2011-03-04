@@ -1,0 +1,18 @@
+<%= render :partial => 'admin/shared/configuration_menu' %>
+
+<h1><%= t("sitewide_seo") %></h1>
+
+<table>
+  <tr>
+    <th scope="row"><%= t("homepage_title") %>:</th>
+    <td><%=  Spree::Config[:homepage_title] %></td>
+    <th scope="row"><%= t("homepage_meta_keywords") %>:</th>
+    <td><%=  Spree::Config[:homepage_meta_keywords] %></td>
+    <th scope="row"><%= t("homepage_meta_description") %>:</th>
+    <td><%=  Spree::Config[:homepage_meta_description] %></td>
+  </tr>
+</table>
+
+<p>
+  <%= link_to_with_icon('edit', t("edit"), edit_admin_sitewide_seo_path) %>
+</p>
