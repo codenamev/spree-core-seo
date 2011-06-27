@@ -1,41 +1,75 @@
+require 'rubygems'
 require 'rake'
 require 'rake/testtask'
-require 'rake/rdoctask'
+require 'rake/packagetask'
+require 'rake/gempackagetask'
 
-desc 'Default: run unit tests.'
-task :default => :test
+gemfile = File.expand_path('../spec/test_app/Gemfile', __FILE__)
+if File.exists?(gemfile) && (%w(spec cucumber).include?(ARGV.first.to_s) || ARGV.size == 0)
+  require 'bundler'
+  ENV['BUNDLE_GEMFILE'] = gemfile
+  Bundler.setup
 
-desc 'Test the core_seo extension.'
-Rake::TestTask.new(:test) do |t|
-  t.libs << 'lib'
-  t.pattern = 'test/**/*_test.rb'
-  t.verbose = true
-end
+  require 'rspec'
+  require 'rspec/core/rake_task'
+  RSpec::Core::RakeTask.new
 
-namespace :test do
-  desc 'Functional test the core_seo extension.'
-  Rake::TestTask.new(:functionals) do |t|
-    t.libs << 'lib'
-    t.pattern = 'test/functional/*_test.rb'
-    t.verbose = true
-  end
-
-  desc 'Unit test the core_seo extension.'
-  Rake::TestTask.new(:units) do |t|
-    t.libs << 'lib'
-    t.pattern = 'test/unit/*_test.rb'
-    t.verbose = true
+  require 'cucumber/rake/task'
+  Cucumber::Rake::Task.new do |t|
+    t.cucumber_opts = %w{--format progress}
   end
 end
 
-desc 'Generate documentation for the core_seo extension.'
-Rake::RDocTask.new(:rdoc) do |rdoc|
-  rdoc.rdoc_dir = 'rdoc'
-  rdoc.title    = 'CoreSeoExtension'
-  rdoc.options << '--line-numbers' << '--inline-source'
-  rdoc.rdoc_files.include('README.markdown')
-  rdoc.rdoc_files.include('lib/**/*.rb')
+desc "Default Task"
+task :default => [:spec, :cucumber ]
+
+spec = eval(File.read('core_seo.gemspec'))
+
+Rake::GemPackageTask.new(spec) do |p|
+  p.gem_spec = spec
 end
 
-# Load any custom rakefiles for extension
-Dir[File.dirname(__FILE__) + '/lib/tasks/*.rake'].sort.each { |f| require f }
+desc "Release to gemcutter"
+task :release => :package do
+  require 'rake/gemcutter'
+  Rake::Gemcutter::Tasks.new(spec).define
+  Rake::Task['gem:push'].invoke
+end
+
+desc "Default Task"
+task :default => [ :spec ]
+
+desc "Regenerates a rails 3 app for testing"
+task :test_app do
+  require '../spree/lib/generators/spree/test_app_generator'
+  class CoreSeoTestAppGenerator < Spree::Generators::TestAppGenerator
+
+    def install_gems
+      inside "test_app" do
+        run 'bundle exec rake spree_core:install'
+        run 'bundle exec rake core_seo:install'
+      end
+    end
+
+    def migrate_db
+      run_migrations
+    end
+
+    protected
+    def full_path_for_local_gems
+      <<-gems
+gem 'spree_core', :path => \'#{File.join(File.dirname(__FILE__), "../spree/", "core")}\'
+gem 'core_seo', :path => \'#{File.dirname(__FILE__)}\'
+      gems
+    end
+
+  end
+  CoreSeoTestAppGenerator.start
+end
+
+namespace :test_app do
+  desc 'Rebuild test and cucumber databases'
+  task :rebuild_dbs do
+    system("cd spec/test_app && bundle exec rake db:drop db:migrate RAILS_ENV=test && rake db:drop db:migrate RAILS_ENV=cucumber")
+  end
+end
