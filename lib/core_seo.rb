@@ -35,6 +35,14 @@ module CoreSeo
         	end
       	end
     	end
+
+      Product.class_eval do
+        attr_accessor :title_tag
+      end
+
+      Taxon.class_eval do
+        attr_accessor :title_tag
+      end
       
 			ProductsController.class_eval do
     	  # This will override the entire title tag
