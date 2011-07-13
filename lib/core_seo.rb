@@ -45,6 +45,8 @@ module CoreSeo
       end
       
 			ProductsController.class_eval do
+        private
+
     	  # This will override the entire title tag
   	    # Use accurate_title to keep Spree::Config[:site_name] in front of all titles
 	      def accurate_title
@@ -59,6 +61,8 @@ module CoreSeo
 	    end
 
     	TaxonsController.class_eval do
+        private
+
   	    # This will override the entire title tag
 	      # Use accurate_title to keep Spree::Config[:site_name] in front of all titles
       	def accurate_title
