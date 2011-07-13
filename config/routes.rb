@@ -1,8 +1,10 @@
-map.resources :sitemap
+Rails.application.routes.draw do
+  resources :sitemap
 
-map.product_list '/product_list.:format', :controller => :sitemap, :action => :product_list
+  match '/product_list.:format' => "sitemap#product_list"
 
-map.namespace :admin do |admin|
-  admin.resource :keywords_footer
-  admin.resource :sitewide_seo
+  namespace :admin do |admin|
+    resource :keywords_footer
+    resource :sitewide_seo
+  end
 end
