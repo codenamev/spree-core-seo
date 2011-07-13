@@ -45,27 +45,23 @@ module CoreSeo
       end
       
 			ProductsController.class_eval do
-    	  # This will override the entire title tag
-  	    # Use accurate_title to keep Spree::Config[:site_name] in front of all titles
-	      def title
+        before_filter :find_seo_title, :only => :show
+	      def find_seo_title
       	  if defined?(request) and request.fullpath == "/"
-    	      return Spree::Config[:homepage_title] if Spree::Config[:homepage_title].present?
+    	      @title = Spree::Config[:homepage_title] if Spree::Config[:homepage_title].present?
   	      end
 	        if defined?(@product.title_tag)
-        	  return @product.title_tag if @product.title_tag.present?
+        	  @title = @product.title_tag if @product.title_tag.present?
       	  end
-    	    @product ? @product.name : super
   	    end
 	    end
 
     	TaxonsController.class_eval do
-  	    # This will override the entire title tag
-	      # Use accurate_title to keep Spree::Config[:site_name] in front of all titles
-      	def title
+        before_filter :find_seo_title, :only => :show
+      	def find_seo_title
     	    if defined?(@taxon.title_tag)
-  	        return @taxon.title_tag if @taxon.title_tag.present?
+  	        @title = @taxon.title_tag if @taxon.title_tag.present?
 	        end
-        	@taxon ? @taxon.name : super
       	end
     	end
 
