@@ -26,10 +26,10 @@ module SpreeCoreSeo
             return unless object
           	"".tap do |tags|
             	if object.respond_to?(:meta_keywords) and object.meta_keywords.present?
-              	tags << tag('meta', :name => 'keywords', :content => object.meta_keywords) + "\n"
+              	tags << tag('meta', :name => 'keywords', :content => object.meta_keywords.html_safe) + "\n"
             	end
             	if object.respond_to?(:meta_description) and object.meta_description.present?
-              	tags << tag('meta', :name => 'description', :content => object.meta_description) + "\n"
+              	tags << tag('meta', :name => 'description', :content => object.meta_description.html_safe) + "\n"
             	end
           	end
         	end
@@ -51,10 +51,21 @@ module SpreeCoreSeo
     	      @title = Spree::Config[:homepage_title] if Spree::Config[:homepage_title].present?
   	      end
 	        if defined?(@product.title_tag)
-        	  @title = @product.title_tag if @product.title_tag.present?
+        	  @title = @product.title_tag.html_safe if @product.title_tag.present?
       	  end
   	    end
 	    end
+
+      Admin::ProductsController.class_eval do
+        protected
+        def update_before
+          # hack to get title tags to set
+          @product.title_tag = params[:product][:title_tag] if defined?(@product) and params[:product] and params[:product][:title_tag]
+          # note: we only reset the product properties if we're receiving a post from the form on that tab
+          return unless params[:clear_product_properties]
+          params[:product] ||= {}
+        end
+      end
 
     	TaxonsController.class_eval do
         #before_filter :find_seo_title, :only => :show
