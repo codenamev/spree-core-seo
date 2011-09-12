@@ -4,7 +4,7 @@ Rails.application.routes.draw do
   #match '/product_list.:format' => "sitemap#product_list"
 
   namespace :admin do
-    #resource :keywords_footer
-    #resource :sitewide_seo
+    resource :keywords_footer
+    resource :sitewide_seo
   end
 end
